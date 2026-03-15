@@ -17,7 +17,6 @@ from typing import TypedDict, Optional, List
 from typing_extensions import Annotated
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, START, END
-from google.api_core.exceptions import ResourceExhausted
 from agent.prompts import fundamental_analysis_llm_prompt,technical_analysis_llm_prompt,primary_llm_prompt,news_analysis_llm_prompt,final_decision_llm_prompt
 
 
@@ -71,7 +70,7 @@ def primary_router(state: AgentState):
             HumanMessage(content=state["query"])
         ])
 
-    except ResourceExhausted as re:
+    except Exception as re:
         print("--------------retrying with groq-------------")
         response = router_fallback_llm_with_tools.invoke([
             SystemMessage(content=primary_llm_prompt),
@@ -145,7 +144,7 @@ def technical_analysis_node(state: AgentState):
             SystemMessage(content=technical_analysis_llm_prompt),
             HumanMessage(content=str(state.get("technical_data")))
         ])
-    except ResourceExhausted as re:
+    except Exception as re:
         print("--------------retrying with groq-------------")
         response = router_fallback_llm.invoke([
             SystemMessage(content=technical_analysis_llm_prompt),
@@ -164,7 +163,7 @@ def news_analysis_node(state: AgentState):
             SystemMessage(content=news_analysis_llm_prompt),
             HumanMessage(content=str(state.get("news_data")))
         ])
-    except ResourceExhausted as re:
+    except Exception as re:
         print("--------------retrying with groq-------------")
         response = router_fallback_llm.invoke([
             SystemMessage(content=news_analysis_llm_prompt),
@@ -183,7 +182,7 @@ def fundamental_analysis_node(state: AgentState):
             SystemMessage(content=fundamental_analysis_llm_prompt),
             HumanMessage(content=str(state.get("fundamental_data")))
         ])
-    except ResourceExhausted as re:
+    except Exception as re:
         print("--------------retrying with groq-------------")
         response = router_fallback_llm.invoke([
             SystemMessage(content=fundamental_analysis_llm_prompt),
@@ -215,7 +214,7 @@ Fundamental Analysis:
             SystemMessage(content=final_decision_llm_prompt),
             HumanMessage(content=analysis)
         ])
-    except ResourceExhausted as re:
+    except Exception as re:
         print("--------------retrying with groq-------------")
         response = router_fallback_llm.invoke([
             SystemMessage(content=final_decision_llm_prompt),
